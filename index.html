@@ -7,14 +7,12 @@
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
     function init() {
-        // 地図を表示するdiv要素のidを設定
-        var map = L.map('mapcontainer', {
+        var map = L.map('map', {
           center: [0, 0],
           zoom: 2,
           minZoom: 0,
           maxZoom: 6
         });
-        // 表示するタイルレイヤのURLとAttributionコントロールの記述を設定して、地図に追加する
         L.tileLayer('./tile/{z}/{x}/{y}.png', {
             attribution: "<a href='https://twitter.com/ZenithMMO/status/1489691004357812226' target='_blank'>Original Map</a>"
         }).addTo(map);
@@ -25,13 +23,13 @@
             padding: 0;
             margin: 0;
         }
-        html, body, #mapcontainer {
+        html, body, #map {
             height: 100%;
             width: 100%;
         }
     </style>
 </head>
 <body onload="init()">
-  <div id="mapcontainer"></div>
+  <div id="map"></div>
 </body>
 </html>
