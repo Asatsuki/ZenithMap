@@ -8,13 +8,14 @@
   <script>
     function init() {
         var map = L.map('map', {
-          center: [0, 0],
+          center: [60, 0],
           zoom: 2,
           minZoom: 0,
           maxZoom: 6
         });
         L.tileLayer('./tile/{z}/{x}/{y}.png', {
-            attribution: "<a href='https://twitter.com/ZenithMMO/status/1489691004357812226' target='_blank'>Original Map</a>"
+            attribution: "<a href='https://twitter.com/ZenithMMO/status/1489691004357812226' target='_blank'>Original Map</a>",
+            noWrap: true
         }).addTo(map);
     }
   </script>
