@@ -1,0 +1,10 @@
+{
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [2263, 3544]
+    },
+    "properties": {
+        "name": "Zenith City"
+    }
+}
