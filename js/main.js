@@ -39,8 +39,13 @@ function init() {
         contextmenu: true,
         contextmenuWidth: 140,
         contextmenuItems: [{
+            text: 'Copy coordinates',
+            callback: copyCorrdinate,
+            index: 0
+        }, '-', {
             text: 'Add a waypoint here',
-            callback: createWaypoint
+            callback: createWaypoint,
+            index: 100
         }]
     });
     
@@ -53,9 +58,10 @@ function init() {
 
     var options = {
         position: 'bottomleft',
+        enableUserInput: false,
         decimals: 2,
-        labelTemplateLng: 'X: {x}',
-        labelTemplateLat: 'Y: {y}',
+        labelTemplateLng: '({x},',
+        labelTemplateLat: '{y})',
         useLatLngOrder: false
     }
     map.fitBounds(bounds, {
@@ -63,7 +69,20 @@ function init() {
     });
     L.control.coordinates(options).addTo(map);
 
-    
+    // notification
+    var notification = L.control.notifications({
+        timeout: 3000,
+        position: 'topright',
+        closable: true,
+        dismissable: true,
+        alert: 'fa-solid fa-circle-xmark',
+        success: 'fa-solid fa-circle-check',
+        warning: 'fa-solid fa-triangle-exclamation',
+        info: 'fa-solid fa-circle-info',
+        custom: 'fa-solid fa-gear'
+    })
+    .addTo(map);
+
 
     var features = [
         {
@@ -159,10 +178,10 @@ function init() {
     }
 
     function addWaypointToMap (uuid, lat, lng) {
-        var label = 'X: ' + lng + ' Y: ' + lat;
+        var label = '(' + lng + ', ' + lat + ')';
 
         var btn = document.createElement('button');
-        btn.innerText = 'Delete'
+        btn.innerText = 'Remove'
         btn.onclick = function() {
             deleteWaypoint(uuid);
         }
@@ -210,4 +229,18 @@ function init() {
         ]
     }).addTo(map);
 
+    // copy coord
+    function copyCorrdinate(e) {
+        var text = '(' + e.latlng.lng + ', ' + e.latlng.lat + ')';
+        try {
+            navigator.clipboard.writeText(text);
+            notification.success('Copied!', text);
+        } catch(error) {
+            notification.alert('Failed to copy', 'Your browser may not support it.<br>Manually copy from the following text:</p>' + text, {
+                dismissable: false,
+                timeout: 8000
+            });
+        }
+        
+    }
 }
