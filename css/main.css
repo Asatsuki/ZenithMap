@@ -12,3 +12,6 @@ html, body, #map {
 .leaflet-dragging .leaflet-grab{
     cursor: move;
 }
+.tooltip_title{
+    font-weight: bold;
+}
