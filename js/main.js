@@ -13,7 +13,7 @@ var langs = {
         'addWaypoint': 'Add a waypoint here',
         'view': 'View',
         'waypoint': 'Waypoint',
-        'fast_travel': 'Fast Travel',
+        'fastTravel': 'Fast Travel',
         'remove': 'Remove',
         'copied': 'Copied!',
         'copyFailed': 'Failed to copy',
@@ -24,11 +24,11 @@ var langs = {
         'addWaypoint': 'ここに地点を追加',
         'view': '表示',
         'waypoint': '地点',
-        'fast_travel': 'ファストトラベル',
+        'fastTravel': 'ファストトラベル',
         'remove': '削除',
         'copied': 'コピーしました！',
         'copyFailed': 'コピーに失敗しました',
-        'copyFailed_msg': 'ブラウザが対応していない可能性があります。<br>↓以下のテキストを手動でコピーしてください<br>%{coord}'
+        'copyFailed_msg': '非対応ブラウザかもしれません。<br>↓以下を手動でコピーしてください<br>%{coord}'
     }
 };
 var polyglot = new Polyglot();
@@ -167,39 +167,6 @@ function init() {
     })
     .addTo(map);
     
-    var features = [
-        {
-            "type": "Feature",
-            "geometry": {
-               "type": "Point",
-               "coordinates":  [ 503,4496 ]
-            },
-            "properties": {
-            "name":"The Underside"
-            }
-          },
-          {
-            "type": "Feature",
-            "geometry": {
-               "type": "Point",
-               "coordinates":  [ 1504,4553 ]
-            },
-            "properties": {
-            "name":"Brimm's Tavern"
-            }
-          },
-          {
-            "type": "Feature",
-            "geometry": {
-               "type": "Point",
-               "coordinates":  [ 2310,3570 ]
-            },
-            "properties": {
-            "name":"Nexus District"
-            }
-          }
-    ]
-
     // icons
     var icons = {};
     icons.fastTravel = L.icon({
@@ -222,14 +189,18 @@ function init() {
     var layers = {};
 
     // GeoJson
-    layers.fastTravel = L.geoJSON(features, {
-        pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {
-                icon: icons.fastTravel,
-                title: feature.properties.name
-            });
-        }
-    }).addTo(map);
+    layers.fastTravel = L.layerGroup().addTo(map);
+    $.getJSON('./data/fast_travel.geojson', function (data) {
+        var layer = L.geoJSON(data, {
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                    icon: icons.fastTravel,
+                    title: feature.properties.name
+                }).bindPopup('<div class="tooltip-title">' + polyglot.t('fastTravel') + '</div>' + '<hr>' + feature.properties.name);
+            }
+        }).addTo(map);
+        layers.fastTravel.addLayer(layer);
+    });
 
     // waypoints
     layers.waypoint = L.layerGroup().addTo(map);
@@ -299,7 +270,7 @@ function init() {
         title: polyglot.t('view'),
         legends: [
             {
-                label: polyglot.t('fast_travel'),
+                label: polyglot.t('fastTravel'),
                 type: 'image',
                 url: './icon/fast_travel_legend.png',
                 layers: layers.fastTravel
@@ -326,12 +297,5 @@ function init() {
             });
         }
         
-    }
-
-    // lang select
-    function selectLang(e) {
-        var dialog = L.control.dialog({})
-        .setContent('Select your language')
-        .addTo(map);
     }
 }
