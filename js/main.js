@@ -19,7 +19,7 @@ var langs = {
         'copyFailed': 'Failed to copy',
         'copyFailed_msg': 'Your browser may not support it.<br>Manually copy from the following text:<br>%{coord}'
     },
-    'ja': {
+    'ja-JP': {
         'copyCoord': '座標をコピー',
         'addWaypoint': 'ここに地点を追加',
         'view': '表示',
@@ -40,15 +40,18 @@ function init() {
         lang: 'zenithmap-lang',
         langSelected: 'zenithmap-langSelected'
     }
-    var langCodes = ['en-US', 'ja'];
+    var langCodes = ['en-US', 'ja-JP'];
     var langNames = {
         'en-US': 'English',
-        'ja': '日本語'
+        'ja-JP': '日本語'
     }
 
     // settings init
     if(localStorage.getItem(keys.lang) == null){
-        localStorage.setItem(keys.lang, 'en-US')
+        var defaultLang = (navigator.language) ? navigator.language : navigator.userLanguage;
+        if (defaultLang == undefined) defaultLang = 'en-US';
+        if (!(defaultLang in langNames)) defaultLang = 'en-US';
+        localStorage.setItem(keys.lang, defaultLang); // ブラウザの言語を判別して言語の初期設定をする。不明・非対応言語なら英語
     }
 
     // i18n
