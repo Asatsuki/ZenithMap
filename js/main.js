@@ -11,6 +11,7 @@ var langs = {
     'en-US': {
         'copyCoord': 'Copy coordinates',
         'addWaypoint': 'Add a waypoint here',
+        'view': 'View',
         'waypoint': 'Waypoint',
         'fast_travel': 'Fast Travel',
         'remove': 'Remove',
@@ -20,7 +21,8 @@ var langs = {
     },
     'ja': {
         'copyCoord': '座標をコピー',
-        'addWaypoint': '地点を追加',
+        'addWaypoint': 'ここに地点を追加',
+        'view': '表示',
         'waypoint': '地点',
         'fast_travel': 'ファストトラベル',
         'remove': '削除',
@@ -35,7 +37,13 @@ function init() {
 
     // constants
     var keys = {
-        lang: 'zenithmap-lang'
+        lang: 'zenithmap-lang',
+        langSelected: 'zenithmap-langSelected'
+    }
+    var langCodes = ['en-US', 'ja'];
+    var langNames = {
+        'en-US': 'English',
+        'ja': '日本語'
     }
 
     // settings init
@@ -58,6 +66,7 @@ function init() {
         waypoints: '&uuid,lng,lat,name,icon'
     })
 
+    // crs
     var factorX = 256 / 16384;
     var factorY = 256 / 16384;
     var constantX = 0;
@@ -66,6 +75,7 @@ function init() {
         transformation: new L.Transformation(factorX, constantX, factorY, constantY),
     });
 
+    // map
     var bounds = [[0,0], [8784,14764]];
     var map = L.map('map', {
         fullscreenControl: true,
@@ -82,7 +92,7 @@ function init() {
             text: polyglot.t('copyCoord'),
             callback: copyCorrdinate,
             index: 0
-        }, '-', {
+        }, {
             text: polyglot.t('addWaypoint'),
             callback: createWaypoint,
             index: 100
@@ -110,6 +120,39 @@ function init() {
     });
     L.control.coordinates(options).addTo(map);
 
+    // lang selector
+    L.Control.LangSelector = L.Control.extend({
+        onAdd: function (map) {
+            var div = L.DomUtil.create('div', 'lang-selector');
+            var select = L.DomUtil.create('select');
+            for (const langCode of langCodes) {
+                let option = L.DomUtil.create('option');
+                option.setAttribute('value', langCode);
+                option.innerText += langNames[langCode];
+                if (localStorage.getItem(keys.lang) == langCode) {
+                    option.setAttribute('selected', true);
+                }
+                select.appendChild(option);
+            }
+
+            div.appendChild(select);
+    
+            select.onmousedown = select.ondblclick = L.DomEvent.stopPropagation;
+            select.addEventListener('change', (e) => {
+                localStorage.setItem(keys.lang, e.target.value);
+                location.reload();
+            })
+            return div;
+        },
+        onRemove: function(map) {
+            // NOOP
+        }
+    });
+    L.control.langSelector = function(opts) {
+        return new L.Control.LangSelector(opts);
+    }
+    L.control.langSelector({position: 'topright'}).addTo(map);
+
     // notification
     var notification = L.control.notifications({
         timeout: 3000,
@@ -123,8 +166,7 @@ function init() {
         custom: 'fa-solid fa-gear'
     })
     .addTo(map);
-
-
+    
     var features = [
         {
             "type": "Feature",
@@ -254,6 +296,7 @@ function init() {
     L.control.Legend({
         position: 'bottomleft',
         collapsed: false,
+        title: polyglot.t('view'),
         legends: [
             {
                 label: polyglot.t('fast_travel'),
@@ -283,5 +326,12 @@ function init() {
             });
         }
         
+    }
+
+    // lang select
+    function selectLang(e) {
+        var dialog = L.control.dialog({})
+        .setContent('Select your language')
+        .addTo(map);
     }
 }
