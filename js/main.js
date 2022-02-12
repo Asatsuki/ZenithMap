@@ -130,8 +130,8 @@ function init() {
     })
     icons.waypoint = L.icon({
         iconUrl: './icon/waypoint.png',
-        iconSize:       [48, 48],
-        iconAnchor:     [24, 42],
+        iconSize:       [26, 38],
+        iconAnchor:     [13, 37],
         popupAnchor:    [0, -24]
     })
 
