@@ -7,7 +7,49 @@ var xy = function(x, y) {
     return yx(y, x);  // When doing xy(x, y);
 };
 
+var langs = {
+    'en-US': {
+        'copyCoord': 'Copy coordinates',
+        'addWaypoint': 'Add a waypoint here',
+        'waypoint': 'Waypoint',
+        'fast_travel': 'Fast Travel',
+        'remove': 'Remove',
+        'copied': 'Copied!',
+        'copyFailed': 'Failed to copy',
+        'copyFailed_msg': 'Your browser may not support it.<br>Manually copy from the following text:<br>%{coord}'
+    },
+    'ja': {
+        'copyCoord': '座標をコピー',
+        'addWaypoint': '地点を追加',
+        'waypoint': '地点',
+        'fast_travel': 'ファストトラベル',
+        'remove': '削除',
+        'copied': 'コピーしました！',
+        'copyFailed': 'コピーに失敗しました',
+        'copyFailed_msg': 'ブラウザが対応していない可能性があります。<br>↓以下のテキストを手動でコピーしてください<br>%{coord}'
+    }
+};
+var polyglot = new Polyglot();
+
 function init() {
+
+    // constants
+    var keys = {
+        lang: 'zenithmap-lang'
+    }
+
+    // settings init
+    if(localStorage.getItem(keys.lang) == null){
+        localStorage.setItem(keys.lang, 'en-US')
+    }
+
+    // i18n
+    var lang = localStorage.getItem(keys.lang);
+    if (lang in langs) {
+        polyglot.extend(langs[lang]);
+    } else {
+        polyglot.extend(langs['en-US']);
+    }
 
     // indexedDB
     var db = new Dexie('ZenithMapClientDB');
@@ -15,8 +57,6 @@ function init() {
     db.version(1).stores({
         waypoints: '&uuid,lng,lat,name,icon'
     })
-
-    loadWaypoints(); // load waypoints
 
     var factorX = 256 / 16384;
     var factorY = 256 / 16384;
@@ -39,16 +79,17 @@ function init() {
         contextmenu: true,
         contextmenuWidth: 140,
         contextmenuItems: [{
-            text: 'Copy coordinates',
+            text: polyglot.t('copyCoord'),
             callback: copyCorrdinate,
             index: 0
         }, '-', {
-            text: 'Add a waypoint here',
+            text: polyglot.t('addWaypoint'),
             callback: createWaypoint,
             index: 100
         }]
     });
     
+    // tile
     L.tileLayer.fallback('./tile/{z}/{x}/{y}.png', {
         attribution: '<a href="https://twitter.com/ZenithMMO/status/1489691004357812226" target="_blank">Original Map</a>',
         noWrap: true
@@ -139,7 +180,6 @@ function init() {
     var layers = {};
 
     // GeoJson
-
     layers.fastTravel = L.geoJSON(features, {
         pointToLayer: function (feature, latlng) {
             return L.marker(latlng, {
@@ -150,9 +190,10 @@ function init() {
     }).addTo(map);
 
     // waypoints
-
     layers.waypoint = L.layerGroup().addTo(map);
     var waypoints = {}; // waypoint layers
+
+    loadWaypoints(); // load waypoints
 
     function createWaypoint (e) {
         var uuid = UUID.generate();
@@ -181,7 +222,7 @@ function init() {
         var label = '(' + lng + ', ' + lat + ')';
 
         var btn = document.createElement('button');
-        btn.innerText = 'Remove'
+        btn.innerText = polyglot.t('remove')
         btn.onclick = function() {
             deleteWaypoint(uuid);
         }
@@ -215,13 +256,13 @@ function init() {
         collapsed: false,
         legends: [
             {
-                label: 'Fast Travel',
+                label: polyglot.t('fast_travel'),
                 type: 'image',
                 url: './icon/fast_travel_legend.png',
                 layers: layers.fastTravel
             },
             {
-                label: 'Waypoint',
+                label: polyglot.t('waypoint'),
                 type: 'image',
                 url: './icon/waypoint.png',
                 layers: layers.waypoint
@@ -234,9 +275,9 @@ function init() {
         var text = '(' + e.latlng.lng + ', ' + e.latlng.lat + ')';
         try {
             navigator.clipboard.writeText(text);
-            notification.success('Copied!', text);
+            notification.success(polyglot.t('copied'), text);
         } catch(error) {
-            notification.alert('Failed to copy', 'Your browser may not support it.<br>Manually copy from the following text:</p>' + text, {
+            notification.alert(polyglot.t('copyFailed'), polyglot.t('copyFailed_msg', {coord: text}), {
                 dismissable: false,
                 timeout: 8000
             });
