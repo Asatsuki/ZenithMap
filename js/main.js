@@ -10,6 +10,7 @@ var xy = function(x, y) {
 var langs = {
     'en-US': {
         'copyCoord': 'Copy coordinates',
+        'copyCoordShareUrl': 'Copy coordinate URL',
         'addWaypoint': 'Add a waypoint here',
         'view': 'View',
         'waypoint': 'Waypoint',
@@ -17,18 +18,27 @@ var langs = {
         'remove': 'Remove',
         'copied': 'Copied!',
         'copyFailed': 'Failed to copy',
-        'copyFailed_msg': 'Your browser may not support it.<br>Manually copy from the following text:<br>%{coord}'
+        'copyFailed_msg': 'Your browser may not support it.<br>Manually copy from the following text:<br>%{coord}',
+        'copyCoordWaypoint': 'Copy waypoint coordinates',
+        'copyWaypointShareUrl': 'Copy waypoint URL',
+        'removeWaypoint': 'Remove waypoint',
+        'sharedWaypoint': 'Shared Waypoint'
     },
     'ja-JP': {
         'copyCoord': '座標をコピー',
-        'addWaypoint': 'ここに地点を追加',
+        'copyCoordShareUrl': '座標URLをコピー',
+        'addWaypoint': '地点を追加',
         'view': '表示',
         'waypoint': '地点',
         'fastTravel': 'ファストトラベル',
         'remove': '削除',
         'copied': 'コピーしました！',
         'copyFailed': 'コピーに失敗しました',
-        'copyFailed_msg': '非対応ブラウザかもしれません。<br>↓以下を手動でコピーしてください<br>%{coord}'
+        'copyFailed_msg': '非対応ブラウザかもしれません。<br>↓以下を手動でコピーしてください<br>%{coord}',
+        'copyCoordWaypoint': '地点の座標をコピー',
+        'copyWaypointShareUrl': '地点URLをコピー',
+        'removeWaypoint': '地点を削除',
+        'sharedWaypoint': '共有された地点'
     }
 };
 var polyglot = new Polyglot();
@@ -45,6 +55,13 @@ function init() {
         'en-US': 'English',
         'ja-JP': '日本語'
     }
+
+    // get
+    var params = new URL(window.location.href).searchParams;
+    // params.get('s'); // share
+    // params.get('v'); // coords version
+    // params.get('x'); // lng
+    // params.get('y'); // lat
 
     // settings init
     if(localStorage.getItem(keys.lang) == null){
@@ -90,18 +107,21 @@ function init() {
         wheelPxPerZoomLevel: 60,
 
         contextmenu: true,
-        contextmenuWidth: 140,
         contextmenuItems: [{
             text: polyglot.t('copyCoord'),
-            callback: copyCorrdinate,
-            index: 0
+            callback: function(e){ copyCoordinate(e.latlng) },
+            index: 101
+        }, {
+            text: polyglot.t('copyCoordShareUrl'),
+            callback: function(e){ copyShareUrl(e.latlng) },
+            index: 102
         }, {
             text: polyglot.t('addWaypoint'),
             callback: createWaypoint,
-            index: 100
+            index: 103
         }]
     });
-    
+        
     // tile
     L.tileLayer.fallback('./tile/{z}/{x}/{y}.png', {
         attribution: '<a href="https://twitter.com/ZenithMMO/status/1489691004357812226" target="_blank">Original Map</a>',
@@ -180,13 +200,19 @@ function init() {
         iconAnchor:     [32, 32],
         shadowAnchor:   [32, 32],
         popupAnchor:    [0, 0]
-    })
+    });
     icons.waypoint = L.icon({
         iconUrl: './icon/waypoint.png',
         iconSize:       [26, 38],
         iconAnchor:     [13, 37],
         popupAnchor:    [0, -24]
-    })
+    });
+    icons.shared = L.icon({
+        iconUrl: './icon/shared.png',
+        iconSize:       [32, 48],
+        iconAnchor:     [16, 46],
+        popupAnchor:    [0, -24]
+    });
 
     // markers
     var layers = {};
@@ -249,7 +275,24 @@ function init() {
         
         var waypoint = L.marker(L.latLng(lat, lng), {
             title: label,
-            icon: icons.waypoint
+            icon: icons.waypoint,
+            contextmenu: true,
+            contextmenuItems: [{
+                text: polyglot.t('copyCoordWaypoint'),
+                callback: function(e) { copyCoordinate(e.relatedTarget.getLatLng()) },
+                index: 0
+            }, {
+                text: polyglot.t('copyWaypointShareUrl'),
+                callback: function(e){ copyShareUrl(e.relatedTarget.getLatLng()) },
+                index: 1
+            }, {
+                text: polyglot.t('removeWaypoint'),
+                callback: function(){ deleteWaypoint(uuid) },
+                index: 2
+            }, {
+                separator: true,
+                index: 3
+            }]
         }).bindPopup(popup).addTo(map);
         waypoints[uuid] = waypoint;
         layers.waypoint.addLayer(waypoint);
@@ -266,7 +309,6 @@ function init() {
     }
 
     // legend
-
     L.control.Legend({
         position: 'bottomleft',
         collapsed: false,
@@ -287,9 +329,28 @@ function init() {
         ]
     }).addTo(map);
 
-    // copy coord
-    function copyCorrdinate(e) {
-        var text = '(' + e.latlng.lng + ', ' + e.latlng.lat + ')';
+    // shared url
+    if (params.get('s') == 'c') {
+        let version = params.get('v');
+        let latlng = L.latLng(params.get('y'), params.get('x'));
+        let waypoint = L.marker(latlng, {
+            title: polyglot.t('sharedWaypoint'),
+            icon: icons.shared,
+            contextmenu: true,
+            contextmenuItems: [{
+                text: polyglot.t('copyCoordWaypoint'),
+                callback: function(e) { copyCoordinate(e.relatedTarget.getLatLng()) },
+                index: 0
+            }, {
+                separator: true,
+                index: 1
+            }]
+        }).addTo(map);
+        map.setView(latlng, 3);
+    }
+
+    function copyCoordinate(latlng) {
+        var text = latlng.lng + ', ' + latlng.lat;
         try {
             navigator.clipboard.writeText(text);
             notification.success(polyglot.t('copied'), text);
@@ -299,6 +360,19 @@ function init() {
                 timeout: 8000
             });
         }
-        
+    }
+
+    function copyShareUrl(latlng) {
+        var text = 'https://asatsuki.github.io/ZenithMap?';
+        text += `s=c&v=1&x=${latlng.lng}&y=${latlng.lat}`;
+        try {
+            navigator.clipboard.writeText(text);
+            notification.success(polyglot.t('copied'), text);
+        } catch(error) {
+            notification.alert(polyglot.t('copyFailed'), polyglot.t('copyFailed_msg', {coord: text}), {
+                dismissable: false,
+                timeout: 8000
+            });
+        }
     }
 }
