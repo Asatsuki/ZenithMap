@@ -100,6 +100,66 @@
    "properties": {
    "name":"Radiant Coast"
    }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 6330,1174 ]
+   },
+   "properties": {
+   "name":"Turtle Top"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 8925,1207 ]
+   },
+   "properties": {
+   "name":"Tangled Cove"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 11056,2167 ]
+   },
+   "properties": {
+   "name":"The Ramshackle"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 12038,3414 ]
+   },
+   "properties": {
+   "name":"Emerald Desert"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 12528,5549 ]
+   },
+   "properties": {
+   "name":"Queen's Path"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 11236,5982 ]
+   },
+   "properties": {
+   "name":"Ruler's Reach"
+   }
  }
 ]
 }
