@@ -12,9 +12,11 @@ var langs = {
         'copyCoord': 'Copy coordinates',
         'copyCoordShareUrl': 'Copy coordinate URL',
         'addWaypoint': 'Add a waypoint here',
-        'view': 'View',
+        'view': 'Toggle view',
         'waypoint': 'Waypoint',
         'fastTravel': 'Fast Travel',
+        'globalEvent': 'Global Event',
+        'namedEnemy': 'Boss',
         'remove': 'Remove',
         'copied': 'Copied!',
         'copyFailed': 'Failed to copy',
@@ -28,9 +30,11 @@ var langs = {
         'copyCoord': '座標をコピー',
         'copyCoordShareUrl': '座標URLをコピー',
         'addWaypoint': '地点を追加',
-        'view': '表示',
+        'view': '表示切替',
         'waypoint': '地点',
         'fastTravel': 'ファストトラベル',
+        'globalEvent': 'グローバルイベント',
+        'namedEnemy': 'ボス',
         'remove': '削除',
         'copied': 'コピーしました！',
         'copyFailed': 'コピーに失敗しました',
@@ -201,6 +205,24 @@ function init() {
         shadowAnchor:   [32, 32],
         popupAnchor:    [0, 0]
     });
+    icons.globalEvent = L.icon({
+        iconUrl: './icon/global_event.png',
+        shadowUrl: './icon/global_event_shadow.png',
+        iconSize:       [48, 48],
+        shadowSize:     [48, 48],
+        iconAnchor:     [24, 24],
+        shadowAnchor:   [24, 24],
+        popupAnchor:    [0, 0]
+    });
+    icons.namedEnemy = L.icon({
+        iconUrl: './icon/named_enemy.png',
+        shadowUrl: './icon/named_enemy_shadow.png',
+        iconSize:       [48, 48],
+        shadowSize:     [48, 48],
+        iconAnchor:     [24, 24],
+        shadowAnchor:   [24, 24],
+        popupAnchor:    [0, 0]
+    });
     icons.waypoint = L.icon({
         iconUrl: './icon/waypoint.png',
         iconSize:       [26, 38],
@@ -229,6 +251,33 @@ function init() {
             }
         }).addTo(map);
         layers.fastTravel.addLayer(layer);
+    });
+    layers.globalEvent = L.layerGroup().addTo(map);
+    $.getJSON('./data/global_event.geojson', function (data) {
+        var layer = L.geoJSON(data, {
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                    icon: icons.globalEvent,
+                    title: feature.properties.name
+                }).bindPopup('<div class="tooltip-title">' + polyglot.t('globalEvent') + '</div>' + '<hr>' + feature.properties.name);
+            }
+        }).addTo(map);
+        layers.globalEvent.addLayer(layer);
+    });
+    layers.namedEnemy = L.layerGroup().addTo(map);
+    $.getJSON('./data/named_enemy.geojson', function (data) {
+        var layer = L.geoJSON(data, {
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, {
+                    icon: icons.namedEnemy,
+                    title: feature.properties.name
+                }).bindPopup('<div class="tooltip-title">' + polyglot.t('namedEnemy') + '</div>'
+                + '<hr>'
+                + '<div>' + feature.properties.name + '</div>'
+                + '<div>' + 'Lvl ' + feature.properties.lvl + '</div>');
+            }
+        }).addTo(map);
+        layers.namedEnemy.addLayer(layer);
     });
 
     // waypoints
@@ -319,8 +368,17 @@ function init() {
                 type: 'image',
                 url: './icon/fast_travel_legend.png',
                 layers: layers.fastTravel
-            },
-            {
+            }, {
+                label: polyglot.t('globalEvent'),
+                type: 'image',
+                url: './icon/global_event_legend.png',
+                layers: layers.globalEvent
+            }, {
+                label: polyglot.t('namedEnemy'),
+                type: 'image',
+                url: './icon/named_enemy_legend.png',
+                layers: layers.namedEnemy
+            }, {
                 label: polyglot.t('waypoint'),
                 type: 'image',
                 url: './icon/waypoint.png',

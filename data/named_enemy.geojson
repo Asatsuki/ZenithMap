@@ -1,0 +1,29 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+   {
+     "type": "Feature",
+     "geometry": {
+        "type": "Point",
+        "coordinates":  [ 10780,5482 ]
+     },
+     "properties": {
+     "name":"Darian",
+     "lvl":41,
+     "type":"Cultist"
+     }
+   },
+   {
+     "type": "Feature",
+     "geometry": {
+        "type": "Point",
+        "coordinates":  [ 10366,5702 ]
+     },
+     "properties": {
+     "name":"Gamore",
+     "lvl":41,
+     "type":"Cultist"
+     }
+   }
+ ]
+ }
