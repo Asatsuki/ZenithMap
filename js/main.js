@@ -310,7 +310,7 @@ function init() {
                 }).bindPopup('<div class="tooltip-title">' + polyglot.t('namedEnemy') + '</div>'
                 + '<hr>'
                 + '<div>' + feature.properties.name + '</div>'
-                + '<div>' + 'Lvl ' + feature.properties.lvl + '</div>');
+                + '<div>' + feature.properties.type + ' Lvl' + feature.properties.lvl + '</div>');
             }
         }).addTo(map);
         layers.namedEnemy.addLayer(layer);
