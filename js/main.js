@@ -9,6 +9,7 @@ var xy = function(x, y) {
 
 var langs = {
     'en-US': {
+        'aboutFileName': 'about_en-US.html',
         'copyCoord': 'Copy coordinates',
         'copyCoordShareUrl': 'Copy coordinate URL',
         'addWaypoint': 'Add a waypoint here',
@@ -16,7 +17,7 @@ var langs = {
         'waypoint': 'Waypoint',
         'fastTravel': 'Fast Travel',
         'globalEvent': 'Global Event',
-        'namedEnemy': 'Boss',
+        'namedEnemy': 'Named Boss',
         'remove': 'Remove',
         'copied': 'Copied!',
         'copyFailed': 'Failed to copy',
@@ -27,22 +28,23 @@ var langs = {
         'sharedWaypoint': 'Shared Waypoint'
     },
     'ja-JP': {
+        'aboutFileName': 'about_ja-JP.html',
         'copyCoord': '座標をコピー',
         'copyCoordShareUrl': '座標URLをコピー',
-        'addWaypoint': '地点を追加',
+        'addWaypoint': '地点マーカーを追加',
         'view': '表示切替',
-        'waypoint': '地点',
+        'waypoint': '地点マーカー',
         'fastTravel': 'ファストトラベル',
         'globalEvent': 'グローバルイベント',
-        'namedEnemy': 'ボス',
+        'namedEnemy': 'ネームドボス',
         'remove': '削除',
         'copied': 'コピーしました！',
         'copyFailed': 'コピーに失敗しました',
         'copyFailed_msg': '非対応ブラウザかもしれません。<br>↓以下を手動でコピーしてください<br>%{coord}',
         'copyCoordWaypoint': '地点の座標をコピー',
         'copyWaypointShareUrl': '地点URLをコピー',
-        'removeWaypoint': '地点を削除',
-        'sharedWaypoint': '共有された地点'
+        'removeWaypoint': '地点マーカーを削除',
+        'sharedWaypoint': '共有された地点',
     }
 };
 var polyglot = new Polyglot();
@@ -52,7 +54,8 @@ function init() {
     // constants
     var keys = {
         lang: 'zenithmap-lang',
-        langSelected: 'zenithmap-langSelected'
+        langSelected: 'zenithmap-langSelected',
+        lastVisitedVer: 'zenithmap-lastVisitedVer'
     }
     var langCodes = ['en-US', 'ja-JP'];
     var langNames = {
@@ -179,6 +182,39 @@ function init() {
         return new L.Control.LangSelector(opts);
     }
     L.control.langSelector({position: 'topright'}).addTo(map);
+
+    // about
+    var aboutWindowOpened = false;
+    var aboutWindow;
+    fetch('./html/' + polyglot.t('aboutFileName'))
+    .then((res) => res.text())
+    .then(function(text) {
+        aboutWindow =  L.control.window(map,{
+            modal: false,
+            title: 'Zenith Map Viewer',
+            content: text
+        });
+        aboutWindow.on('show', function(e) {
+            aboutWindowOpened = true;
+        });
+        aboutWindow.on('hide', function(e) {
+            aboutWindowOpened = false;
+        });
+        if (localStorage.getItem(keys.lastVisitedVer) < 1) {
+            aboutWindow.show();
+            localStorage.setItem(keys.lastVisitedVer, 1);
+        }
+    });
+    L.easyButton('fa-solid fa-question', function(btn, map){
+        if (aboutWindow != null) {
+            if (aboutWindowOpened) {
+                aboutWindow.hide();
+            } else {
+                aboutWindow.show('center');
+            }
+        }
+    }).addTo(map);
+    
 
     // notification
     var notification = L.control.notifications({

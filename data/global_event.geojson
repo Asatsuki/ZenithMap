@@ -60,6 +60,17 @@
    "type": "Feature",
    "geometry": {
       "type": "Point",
+      "coordinates":  [ 3707,4445 ]
+   },
+   "properties": {
+   "name":"Skirmish - The Fields",
+   "zone":"Fractured Plains"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
       "coordinates":  [ 4112,4450 ]
    },
    "properties": {
@@ -307,6 +318,28 @@
    "properties": {
    "name":"Collect - Gather Pirate Booty",
    "zone":"Turtle Top"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 6707,3748 ]
+   },
+   "properties": {
+   "name":"Boss - Cult Leader (Group Event)",
+   "zone":"Obsidian Fortress"
+   }
+ },
+ {
+   "type": "Feature",
+   "geometry": {
+      "type": "Point",
+      "coordinates":  [ 7750,3364 ]
+   },
+   "properties": {
+   "name":"Trial of the Triad",
+   "zone":"Skysong Summit"
    }
  }
 ]
