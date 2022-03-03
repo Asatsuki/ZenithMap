@@ -9,9 +9,9 @@ html, body, #map {
 .leaflet-grab {
     cursor: auto;
 }
-.leaflet-dragging .leaflet-grab{
+.leaflet-dragging .leaflet-grab {
     cursor: move;
 }
-.tooltip-title{
+.tooltip-title {
     font-weight: bold;
 }
